@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  db:
+    container_name: db-simples-dental
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: "simples-dental"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    ports:
+      - "5432:5432"
+    volumes:
+      - vol_db:/var/lib/postgresql/data
+    networks:
+      - local
+
+volumes:
+  vol_db:
+
+networks:
+  local:

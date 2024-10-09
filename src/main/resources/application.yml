@@ -4,3 +4,10 @@ server:
 spring:
   application:
     name: simples dental
+  jpa:
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:postgresql://localhost:5432/simples-dental
+    username: admin
+    password: admin
