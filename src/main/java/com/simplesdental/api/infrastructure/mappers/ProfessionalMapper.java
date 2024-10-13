@@ -7,10 +7,7 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(
-  componentModel = "spring",
-  nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
-)
+@Mapper(componentModel = "spring")
 public interface ProfessionalMapper {
     Professional map(CreateProfessionalInputDto input);
     void update(UpdateProfessionalInputDto input, @MappingTarget Professional professional);
