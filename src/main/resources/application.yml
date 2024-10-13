@@ -11,3 +11,8 @@ spring:
     url: jdbc:postgresql://localhost:5432/simples-dental
     username: admin
     password: admin
+    driver-class-name: org.postgresql.Driver
+
+springdoc:
+  swagger-ui:
+    operations-sorter: method
