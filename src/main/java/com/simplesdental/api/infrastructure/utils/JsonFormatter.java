@@ -12,11 +12,12 @@ public abstract class JsonFormatter {
         if (fields != null && !fields.isEmpty()) {
             Class<?> clazz = entity.getClass();
             Field[] proprieties = clazz.getDeclaredFields();
+            var columns = fields.stream().map(String::toLowerCase).toList();
 
             Arrays.stream(proprieties).forEach(field -> {
                 try {
                     field.setAccessible(true);
-                    if (!fields.contains(field.getName())) {
+                    if (!columns.contains(field.getName())) {
                         field.set(entity, null);
                     }
                 } catch (Exception e) {
