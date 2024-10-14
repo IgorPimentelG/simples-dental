@@ -9,10 +9,10 @@ import com.simplesdental.api.infrastructure.repositories.ProfessionalRepository;
 import com.simplesdental.api.infrastructure.repositories.specifications.ProfessionalSpecification;
 import com.simplesdental.api.infrastructure.utils.JsonFormatter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +22,7 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     private final ProfessionalMapper professionalMapper = ProfessionalMapper.INSTANCE;
 
     @Override
+    @CacheEvict(value = "professionals", allEntries = true)
     public ResponseModel create(CreateProfessionalInputDto input) {
         var professional = professionalMapper.map(input);
         var entity = professionalRepository.save(professional);
@@ -29,6 +30,7 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     }
 
     @Override
+    @CachePut(value = "professionals")
     public ResponseModel update(UUID id, UpdateProfessionalInputDto input) {
         var professional = findProfessionalById(id);
         professionalMapper.update(input, professional);
@@ -37,6 +39,7 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     }
 
     @Override
+    @CacheEvict(value = "professionals", allEntries = true)
     public ResponseModel delete(UUID id) {
         var professional = findProfessionalById(id);
         professional.markAsDeleted();
@@ -51,6 +54,7 @@ public class ProfessionalServiceImpl implements ProfessionalService {
     }
 
     @Override
+    @Cacheable("professionals")
     public List<ListProfessionalOutputDto> findAll(String search, List<String> fields) {
         var specification = ProfessionalSpecification.build(search);
         var professionals = professionalRepository.findAll(specification);

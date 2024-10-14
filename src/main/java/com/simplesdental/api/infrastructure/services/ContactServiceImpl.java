@@ -10,10 +10,10 @@ import com.simplesdental.api.infrastructure.repositories.*;
 import com.simplesdental.api.infrastructure.repositories.specifications.ContactSpecification;
 import com.simplesdental.api.infrastructure.utils.JsonFormatter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.*;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +24,7 @@ public class ContactServiceImpl implements ContactService {
     private final ContactMapper contactMapper = ContactMapper.INSTANCE;
 
     @Override
+    @CacheEvict(value = "contacts", allEntries = true)
     public ResponseModel create(CreateContactInputDto input) {
         var contact = contactMapper.map(input);
         var professional = findProfessionalById(input.profissionalId());
@@ -37,6 +38,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @CachePut(value = "contacts")
     public ResponseModel update(UUID id, UpdateContactInputDto input) {
         var contact = findContactById(id);
         contactMapper.update(input, contact);
@@ -55,6 +57,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @CacheEvict(value = "contacts", allEntries = true)
     public ResponseModel delete(UUID id) {
         var contact = findContactById(id);
         contact.markAsDeleted();
@@ -69,6 +72,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
+    @Cacheable("contacts")
     public List<ListContactOutputDto> findAll(String search, List<String> fields) {
         var specification = ContactSpecification.build(search);
         var contacts = contactRepository.findAll(specification);
