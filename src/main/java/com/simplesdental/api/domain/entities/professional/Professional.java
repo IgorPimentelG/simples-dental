@@ -33,4 +33,11 @@ public class Professional extends BaseEntity {
     public void removeContact(Contact contact) {
         this.contatos.remove(contact);
     }
+
+    public List<Contact> getContatos() {
+        return Collections.unmodifiableList(contatos.stream()
+          .filter(contact -> contact.getDeletedDate() == null)
+          .toList()
+        );
+    }
 }
