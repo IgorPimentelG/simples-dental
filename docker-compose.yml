@@ -1,6 +1,21 @@
 version: "3.9"
 
 services:
+  app:
+    container_name: "api-simples-dental"
+    build:
+      dockerfile: Dockerfile
+      context: .
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/simples-dental
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    networks:
+      - local
+
   db:
     container_name: db-simples-dental
     image: postgres
