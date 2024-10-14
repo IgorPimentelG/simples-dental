@@ -18,8 +18,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ProfessionalServiceImpl implements ProfessionalService {
 
-    private final ProfessionalMapper professionalMapper;
     private final ProfessionalRepository professionalRepository;
+    private final ProfessionalMapper professionalMapper = ProfessionalMapper.INSTANCE;
 
     @Override
     public ResponseModel create(CreateProfessionalInputDto input) {

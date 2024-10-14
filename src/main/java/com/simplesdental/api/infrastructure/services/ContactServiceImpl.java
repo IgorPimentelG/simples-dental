@@ -19,9 +19,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ContactServiceImpl implements ContactService {
 
-    private final ContactMapper contactMapper;
     private final ContactRepository contactRepository;
     private final ProfessionalRepository professionalRepository;
+    private final ContactMapper contactMapper = ContactMapper.INSTANCE;
 
     @Override
     public ResponseModel create(CreateContactInputDto input) {
@@ -41,7 +41,7 @@ public class ContactServiceImpl implements ContactService {
         var contact = findContactById(id);
         contactMapper.update(input, contact);
 
-        if (!input.profissionalId().equals(contact.getProfissional().getId())) {
+        if (input.profissionalId() != null && !input.profissionalId().equals(contact.getProfissional().getId())) {
             contact.getProfissional().removeContact(contact);
 
             var professional = findProfessionalById(input.profissionalId());

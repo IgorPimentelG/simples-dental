@@ -4,12 +4,17 @@ import com.simplesdental.api.domain.entities.professional.Professional;
 import com.simplesdental.api.domain.entities.professional.dtos.*;
 import com.simplesdental.api.domain.enums.Specialization;
 import org.mapstruct.*;
+import org.mapstruct.factory.Mappers;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface ProfessionalMapper {
+
+    ProfessionalMapper INSTANCE = Mappers.getMapper(ProfessionalMapper.class);
+
     Professional map(CreateProfessionalInputDto input);
+    ListProfessionalOutputDto mapSingle(Professional professional);
     void update(UpdateProfessionalInputDto input, @MappingTarget Professional professional);
 
     @Mapping(target = "cargo", expression = "java(getSpecializationDescription(professional.getCargo()))")

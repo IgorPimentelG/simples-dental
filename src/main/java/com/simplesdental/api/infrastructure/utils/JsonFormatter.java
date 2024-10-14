@@ -8,6 +8,10 @@ import java.util.List;
 
 public abstract class JsonFormatter {
 
+    /**
+     * Set fields not present in the field list to null
+     * to remove from the response
+     */
     public static <T> T onlyFields(T entity, List<String> fields) {
         if (fields != null && !fields.isEmpty()) {
             Class<?> clazz = entity.getClass();
