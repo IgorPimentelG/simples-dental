@@ -10,6 +10,8 @@ import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
@@ -144,11 +146,14 @@ public class ProfessionalTest {
     @DisplayName("should list professionals")
     public void testListProfessional() {
         List<Professional> professionals = MockProfessional.createListEntities();
-        when(professionalRepository.findAll(any(Specification.class))).thenReturn(professionals);
+        when(professionalRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(new PageImpl<>(professionals));
+        when(professionalRepository.count(any(Specification.class))).thenReturn(Long.valueOf(professionals.size()));
 
-        var output = professionalService.findAll("Any", null);
+        var output = professionalService.findAll("Any", List.of("nome"), 0, 10);
 
-        verify(professionalRepository, times(1)).findAll(any(Specification.class));
-        assertEquals(professionals.size(), output.size());
+        verify(professionalRepository, times(1)).findAll(any(Specification.class), any(PageRequest.class));
+        assertEquals(professionals.size(), output.totalItems());
+        assertEquals(output.totalPages(), 1);
+        assertNull(output.items().get(0).getCargo());
     }
 }

@@ -11,6 +11,9 @@ import org.junit.jupiter.api.*;
 import org.junit.runner.RunWith;
 import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.*;
@@ -169,11 +172,14 @@ public class ContactTest {
     @DisplayName("should list contacts")
     public void testListContacts() {
         List<Contact> contacts = MockContact.createListEntities();
-        when(contactRepository.findAll(any(Specification.class))).thenReturn(contacts);
+        when(contactRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(new PageImpl(contacts));
+        when(contactRepository.count(any(Specification.class))).thenReturn(Long.valueOf(contacts.size()));
 
-        var output = contactService.findAll("Any", null);
+        var output = contactService.findAll("Any", List.of("nome"), 0, 10);
 
-        verify(contactRepository, times(1)).findAll(any(Specification.class));
-        assertEquals(contacts.size(), output.size());
+        verify(contactRepository, times(1)).findAll(any(Specification.class), any(PageRequest.class));
+        assertEquals(contacts.size(), output.totalItems());
+        assertEquals(output.totalPages(), 1);
+        assertNull(output.items().get(0).getContato());
     }
 }
