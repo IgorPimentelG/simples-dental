@@ -4,6 +4,7 @@ import com.simplesdental.api.domain.entities.contact.*;
 import com.simplesdental.api.domain.entities.contact.dtos.*;
 import com.simplesdental.api.domain.entities.professional.Professional;
 import com.simplesdental.api.domain.shared.ResponseModel;
+import com.simplesdental.api.domain.shared.ResponsePageModel;
 import com.simplesdental.api.infrastructure.errors.NotFoundException;
 import com.simplesdental.api.infrastructure.mappers.ContactMapper;
 import com.simplesdental.api.infrastructure.repositories.*;
@@ -11,6 +12,7 @@ import com.simplesdental.api.infrastructure.repositories.specifications.ContactS
 import com.simplesdental.api.infrastructure.utils.JsonFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -73,11 +75,19 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @Cacheable("contacts")
-    public List<ListContactOutputDto> findAll(String search, List<String> fields) {
+    public ResponsePageModel<ListContactOutputDto> findAll(
+      String search,
+      List<String> fields,
+      int page,
+      int size
+    ) {
+        var pageRequest = PageRequest.of(page, size);
         var specification = ContactSpecification.build(search);
-        var contacts = contactRepository.findAll(specification);
-        var contactsOutput = contactMapper.map(contacts);
-        return JsonFormatter.onlyFields(contactsOutput, fields);
+        var totalItems = contactRepository.count(specification);
+        var contacts = contactRepository.findAll(specification, pageRequest);
+        var contactsOutput = contactMapper.map(contacts.getContent());
+        var formattedContacts = JsonFormatter.onlyFields(contactsOutput, fields);
+        return new ResponsePageModel<>(totalItems, page, contacts.getTotalPages(), formattedContacts);
     }
 
     private Contact findContactById(UUID id) {

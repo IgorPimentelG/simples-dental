@@ -3,6 +3,7 @@ package com.simplesdental.api.infrastructure.services;
 import com.simplesdental.api.domain.entities.professional.*;
 import com.simplesdental.api.domain.entities.professional.dtos.*;
 import com.simplesdental.api.domain.shared.ResponseModel;
+import com.simplesdental.api.domain.shared.ResponsePageModel;
 import com.simplesdental.api.infrastructure.errors.NotFoundException;
 import com.simplesdental.api.infrastructure.mappers.ProfessionalMapper;
 import com.simplesdental.api.infrastructure.repositories.ProfessionalRepository;
@@ -10,6 +11,7 @@ import com.simplesdental.api.infrastructure.repositories.specifications.Professi
 import com.simplesdental.api.infrastructure.utils.JsonFormatter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.*;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -55,11 +57,19 @@ public class ProfessionalServiceImpl implements ProfessionalService {
 
     @Override
     @Cacheable("professionals")
-    public List<ListProfessionalOutputDto> findAll(String search, List<String> fields) {
+    public ResponsePageModel<ListProfessionalOutputDto> findAll(
+      String search,
+      List<String> fields,
+      int page,
+      int size
+    ) {
+        var pageRequest = PageRequest.of(page, size);
         var specification = ProfessionalSpecification.build(search);
-        var professionals = professionalRepository.findAll(specification);
-        var professionalsOutput = professionalMapper.map(professionals);
-        return JsonFormatter.onlyFields(professionalsOutput, fields);
+        var totalItems = professionalRepository.count(specification);
+        var professionals = professionalRepository.findAll(specification, pageRequest);
+        var professionalsOutput = professionalMapper.map(professionals.getContent());
+        var formattedProfessionals = JsonFormatter.onlyFields(professionalsOutput, fields);
+        return new ResponsePageModel<>(totalItems, page, professionals.getTotalPages(), formattedProfessionals);
     }
 
     private Professional findProfessionalById(UUID id) {

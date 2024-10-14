@@ -3,6 +3,7 @@ package com.simplesdental.api.infrastructure.controllers;
 import com.simplesdental.api.domain.entities.contact.ContactService;
 import com.simplesdental.api.domain.entities.contact.dtos.*;
 import com.simplesdental.api.domain.shared.ResponseModel;
+import com.simplesdental.api.domain.shared.ResponsePageModel;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -47,11 +48,13 @@ public class ContactController {
 
     @GetMapping
     @Operation(summary = "Listar contatos")
-    public ResponseEntity<List<ListContactOutputDto>> getAll(
+    public ResponseEntity<ResponsePageModel<ListContactOutputDto>> getAll(
       @RequestParam String q,
-      @RequestParam(required = false) List<String> fields
+      @RequestParam(required = false) List<String> fields,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "10") int size
     ) {
-        var result = contactService.findAll(q, fields);
+        var result = contactService.findAll(q, fields, page, size);
         return ResponseEntity.ok(result);
     }
 
